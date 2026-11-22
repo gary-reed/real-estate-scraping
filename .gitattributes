@@ -1,0 +1,33 @@
+# Normalize text to LF in the repo. Stops Windows "LF will be replaced by CRLF"
+# warnings on git add when core.autocrlf=true, and keeps diffs/blame clean.
+* text=auto eol=lf
+
+# Explicit source / config text
+*.java text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.properties text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=lf
+
+# Binary
+*.jar binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.class binary

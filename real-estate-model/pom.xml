@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.realestate</groupId>
+        <artifactId>real-estate-scraping</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>real-estate-model</artifactId>
+    <name>Model: real estate</name>
+    <description>
+        Property listing types (RealEstateListing and its blocks) for an application that does not
+        run a scraper. An AI agent generated them for the real-estate dialect on
+        multi-scraper-framework (https://github.com/andre-mei/multi-scraper-framework).
+        Depends on scraper-model only. No Spring, SQLite, HTTP, or browser.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.scraper</groupId>
+            <artifactId>scraper-model</artifactId>
+        </dependency>
+        <!-- @SerializedName stays on the blocks, so the classes do not load without this jar. -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

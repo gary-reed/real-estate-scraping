@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- TEMPLATE: defaultValue is only a fallback; the real value comes from scraper.name in application.yaml -->
+    <springProperty scope="context" name="APP_NAME" source="scraper.name" defaultValue="template-xx"/>
+    <springProperty scope="context" name="LOG_DIR" source="scraper.log-dir" defaultValue="logs"/>
+    <springProperty scope="context" name="UI_LOG_DIR" source="scraper.ui-log-dir" defaultValue="logs-ui"/>
+
+    <!-- Standard console appender. UTF-8 because the UI reads logs-ui as UTF-8; JDK 17 on Windows would otherwise write windows-1252. -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] [%X{workerId:-MAIN}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Main log file -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{workerId:-MAIN}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- UI log file: filtered subset used by LogBuffer / Manager / Visualizer. -->
+    <appender name="FILE_UI" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="com.scraper.runtime.monitoring.UiLogFilter"/>
+        <file>${UI_LOG_DIR}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${UI_LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{workerId:-MAIN}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- MDC-based Test Logging (sifting without Janino) -->
+    <appender name="SIFT_TEST_LOGS" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>testLogFile</key>
+            <defaultValue>_ignored_</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="TEST_FILE-${testLogFile}" class="ch.qos.logback.core.FileAppender">
+                <file>ai-logs/${testLogFile}.log</file>
+                <append>true</append>
+                <encoder>
+                    <charset>UTF-8</charset>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{40} - %msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+        <timeout>5 minutes</timeout>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="FILE_UI"/>
+        <appender-ref ref="SIFT_TEST_LOGS"/>
+    </root>
+
+    <logger name="com.scraper.ui" level="INFO" additivity="false">
+        <appender-ref ref="FILE_UI"/>
+    </logger>
+
+    <!-- Reduce noise from libraries -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+
+    <!-- Enable debug for scraper packages -->
+    <logger name="com.scraper" level="DEBUG"/>
+
+</configuration>

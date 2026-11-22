@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- scraper-parent (from the framework) gives Spring Boot, Lombok, test libraries and the runnable jar. -->
+    <parent>
+        <groupId>com.scraper</groupId>
+        <artifactId>scraper-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.realestate</groupId>
+    <artifactId>template-real-estate-scraper</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>Template: real-estate scraper</name>
+    <description>Starting point for an AI-generated property scraper on multi-scraper-framework (https://github.com/andre-mei/multi-scraper-framework): the cms flavor with the real-estate dialect. No site logic. An AI agent fills a site module from the AI prompt docs/ai-scraper-recon-prompt.md.</description>
+
+    <dependencies>
+        <!-- The cms flavor: phases, HTTP, local Chrome, and the delegator client. Mode is scraper.mode. -->
+        <dependency>
+            <groupId>com.scraper</groupId>
+            <artifactId>flavor-cms</artifactId>
+        </dependency>
+        <!-- Our dialect: RealEstateListing and RealEstateParser -->
+        <dependency>
+            <groupId>com.realestate</groupId>
+            <artifactId>dialect-real-estate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,52 @@
+# ---- Site scrapers --------------------------------------------------------
+# An AI agent generates a property scraper with the AI prompt docs/ai-scraper-recon-prompt.md.
+# The public tree tracks the README in this folder. An AI-generated module stays on your
+# machine until you publish it.
+# The engine is https://github.com/andre-mei/multi-scraper-framework
+/scrapers/*
+!/scrapers/README.md
+
+# ---- Files you save after a run -------------------------------------------
+# Notes, manual sink exports, spreadsheets, and similar. The README stays.
+# The scraper's own database, logs, and caches stay inside the scraper module.
+/outputs/*
+!/outputs/README.md
+!/outputs/us/
+!/outputs/us/**
+
+# ---- Your private settings (config/) ---------------------------------------
+# Only the *.example.* files and the README are shared; your real files stay on your machine.
+/config/*
+!/config/README.md
+!/config/*.example.*
+
+# ---- Build output ---------------------------------------------------------
+target/
+*.class
+dependency-reduced-pom.xml
+effective-pom
+
+# ---- Runtime files a scraper / Manager / Delegator writes next to itself --
+data/
+logs/
+logs-ui/
+detected-html/
+detected-logs/
+ai-logs/
+with_ai/
+*.log
+*.db
+.env
+.env.*
+
+# ---- IDE and OS -----------------------------------------------------------
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+.DS_Store
+Thumbs.db
+Desktop.ini

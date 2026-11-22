@@ -1,0 +1,49 @@
+# Proxy list for this AI real-estate scraper project. The format is defined by multi-scraper-framework
+# (https://github.com/andre-mei/multi-scraper-framework, config/README.md).
+# An AI prompt (docs/ai-scraper-recon-prompt.md) tells an AI agent how to generate a property scraper.
+# Copy this file to proxies.txt (same folder) and put your own proxies in it.
+# proxies.txt is ignored by git, so your proxies and passwords never leave your machine.
+#
+# Variables (optional). Define a name once, then use $name or ${name} on any later line:
+#   $login = my-user
+#   $password = my-password
+#
+# One proxy per line:   provider | tier | Key=Value | Key=Value | ...
+# Lines starting with # are ignored.
+# The provider is a label you choose (webshare, brightdata, or any name). It does not
+# select a built-in integration. Scheme, Auth, Login and Password say how to connect.
+# The same line is used by an HTTP scraper and by a browser scraper.
+#
+# tier     : STATIC_CHEAP     cheap datacenter proxies    (used first)
+#            ISP_STATIC       static ISP / residential IPs
+#            PER_GB_ROTATING  pay-per-GB rotating proxies (used last)
+#
+# Keys     : Host, Port            where the proxy is
+#            Login, Password       set these when the proxy asks for a username and password.
+#                                  $login and $password are the usual way to share one account.
+#            Auth=none             do not send credentials (IP allow-list). This is the default
+#                                  when Login is omitted.
+#            Auth=challenge        send Login and Password. This is the default when Login is set.
+#                                  The HTTP client sends them on the proxy connection. The browser
+#                                  answers an HTTP proxy's challenge itself, and reaches an
+#                                  authenticated SOCKS proxy through a local relay. Either way the
+#                                  password is not put on the Chrome command line.
+#            Scheme=http           how to connect: http (default), https, socks4 or socks5.
+#                                  This is a property of the proxy, not of the scraper that uses it.
+#            User-Template         how Login is turned into the username the proxy expects.
+#                                  Tokens: {login} {session} {country}. Default is {login}.
+#                                  brightdata, oxylabs and smartproxy default to
+#                                  {login}-session-{session}-country-{country} when this is omitted.
+#            Session-Id            fixed session id used by {session}. Omitted: a new id per allocation.
+#            Sticky-Port           connect to this port instead of Port (sticky gateway sessions).
+#            Country               2-letter exit country, e.g. es. Optional.
+#            Ip-Check              URL whose body is the egress IP. Optional.
+#
+# Every line is used by the scraper that reads this file, in every mode (HTTP, BROWSER, DELEGATED).
+# Two scrapers of the SAME site must not share proxies: give each its own file and point to it with
+#   scraper.proxy.definitions-path: my-other-proxies.txt
+# in that scraper's application.yaml.
+#
+# Webshare country comes from the proxy-list API. Put the token here (this file is not committed):
+# $webshare_api_token = paste-your-token
+# WEBSHARE_API_TOKEN is used only when that line is omitted. Do not put a token in application.yaml.

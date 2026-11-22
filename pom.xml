@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Parent from https://github.com/andre-mei/multi-scraper-framework
+         Java and Spring Boot settings, and the versions of every framework library.
+         <relativePath/> means it comes from your Maven repository (mvn install -DskipTests in that clone once). -->
+    <parent>
+        <groupId>com.scraper</groupId>
+        <artifactId>multi-scraper-framework-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.realestate</groupId>
+    <artifactId>real-estate-scraping</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Real-estate scraping (AI prompt)</name>
+    <description>
+        AI scrapers for property listings on multi-scraper-framework
+        (https://github.com/andre-mei/multi-scraper-framework).
+        An AI agent generated this real-estate project from that repository's
+        docs/prompts/example-prompt-scraping.md. The AI prompt docs/ai-scraper-recon-prompt.md
+        tells an AI agent how to generate a scraper for any property site into scrapers/.
+    </description>
+
+    <modules>
+        <module>real-estate-model</module>
+        <module>dialect-real-estate</module>
+        <module>templates/template-real-estate-scraper</module>
+        <!-- Worked example. scrapers/* is git-ignored except scrapers/README.md, so a public
+             clone may not contain this folder. Remove this line when the directory is absent.
+             An AI agent generates the next scraper with the AI prompt docs/ai-scraper-recon-prompt.md
+             and adds its own module line. -->
+        <module>scrapers/compass-us-scraper</module>
+    </modules>
+</project>

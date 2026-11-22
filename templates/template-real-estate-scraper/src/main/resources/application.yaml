@@ -1,0 +1,141 @@
+# ============================================================================
+# TEMPLATE scraper configuration (no site logic).
+#
+# When cloning for a new site, review EVERY value marked "TEMPLATE:" below.
+# Everything else is a sane default and normally stays as is. Defaults not listed here come
+# from the framework (flavor-cms, scraper-runtime).
+# ============================================================================
+
+spring:
+  application:
+    name: template-scraper   # TEMPLATE: <site>-<cc>-scraper, e.g. brand-uk-scraper
+  main:
+    allow-bean-definition-overriding: true
+
+# ==================== Scraper Configuration ====================
+scraper:
+  flavor: cms-listings
+  # Checked at startup. The dialect itself is registered by the dialect-real-estate dependency.
+  dialect: real-estate
+  # How pages are loaded. Omit the key for HTTP.
+  #   HTTP       this process loads pages with HTTP (no browser class required)
+  #   BROWSER    this process runs Chrome (requires a BrowserBehaviorConfig subclass)
+  #   DELEGATED  a browser delegator loads pages (requires a SiteBrowserProfileProvider)
+  # TEMPLATE: decide with evidence from the recon (protected sites need DELEGATED, simple ones HTTP).
+  #   HTTP      when the data (incl. coordinates and contact) is in the raw HTML/JSON, plain requests are
+  #             not challenged, and nothing essential needs scroll/click/in-page AJAX. The HTTP client
+  #             sends browser-consistent headers and cookies, but runs no JavaScript and has no Chrome
+  #             TLS fingerprint. Delete the two browser classes (and their tests) in this mode.
+  #   DELEGATED when the anti-bot is likely to detect HTTP, JavaScript rendering is needed, or essential
+  #             data needs scroll/click/in-page AJAX (getPhase3AjaxCaptures only works in browser modes).
+  mode: HTTP
+  # TEMPLATE: MUST equal ScraperBasicDetails.getSiteAlias() (format "<site>-<cc>", e.g. "brand-uk").
+  # It is the scraper's identity for the Manager (WebSocket registration), logs and DB.
+  name: template-xx
+  # Working files stay inside this module (start the jar from the scraper directory).
+  log-dir: logs
+  ui-log-dir: logs-ui
+  workers:
+    # Number of workers. In BROWSER mode each worker is a Chrome. Start LOW (1-3) for the first
+    # live runs of a new site, raise once the site's anti-bot tolerance is known.
+    count: 3
+    requests-per-minute: 1000   # Global throttle. With N workers, ~rpm/N per worker on average.
+    timeout-seconds: 60
+    max-retries: 3              # Retries for failed requests before giving up on a work item
+    retry-delay-ms: 5000
+    request-delay-ms: 6000      # TEMPLATE: base delay between requests of one worker - tune to the site's tolerance
+    request-delay-range-ms: 5000
+
+  proxy:
+    enabled: true
+    # Your proxy list, used in every mode. A file name is looked up in a config/ folder, searched from
+    # the working directory upwards (or STW_CONFIG_DIR, the name the framework reads). See config/proxies.example.txt.
+    # Two scrapers of the same site need separate files.
+    definitions-path: proxies.txt
+    # User agents come from the Manager when the scraper registers, not from a local file.
+    # $webshare_api_token in config/proxies.txt, or WEBSHARE_API_TOKEN. Do not put a token in this file.
+    rotate-on-block: true
+    webshare:
+      api-token: ${WEBSHARE_API_TOKEN:}
+      sync-on-startup: true
+      cache-file: data/webshare-cache.json
+
+  currency: EUR   # TEMPLATE: ISO-4217 code printed on the site, same as ScraperBasicDetails.getCurrency()
+  # Stored prices are USD. The dialect converts a non-USD amount with Frankfurter.
+  # Keep the endpoint: the framework calls it for every currency except EUR, and aborts the run if it fails.
+  currency-rate-endpoint: http://127.0.0.1:${server.port}/api/v1/currencyRate
+
+  database:
+    sqlite:
+      path: ./data/template-temp-local.db   # TEMPLATE: ./data/<site>-<cc>-temp-local.db (local working DB of the 3 phases)
+    # Where the scraped data is pushed: the "central-db" sink consumer, inherited from the runtime defaults.
+    # Point it at your own service with CENTRAL_DB_API_URL and CENTRAL_DB_INTERNAL_TOKEN
+    # (https://github.com/andre-mei/multi-scraper-framework/blob/main/docs/reference/sink-consumer-api.md).
+    # This dialect can serve that consumer itself and write a CSV. Set scraper.sink.auto-push and
+    # scraper.sink-consumers.central-db to the realestate.csv-sink block at the bottom of this file.
+    # realestate.csv-sink.file-name is the spreadsheet name only (default listings.csv).
+
+  manager:
+    websocket-url: ws://localhost:8090/api/scraper-ws
+    heartbeat-interval-seconds: 30
+
+  phase:
+    auto-proceed: false          # false = pause between phases until the Manager sends NEXT_PHASE
+    min-results-threshold: 5
+    max-delete-percent: 20       # Safety net: abort if one run would mark more than this % of known listings as deleted
+
+  # Anomaly bounds (scraper.anomaly-bounds.*) default to absolute numbers sized for a generous
+  # market, sized like USD. A site whose currency is a different size scales every money bound. See docs/dialect.md.
+
+# ==================== Browser Configuration ====================
+scraper.browser:
+  # Used when scraper.mode is BROWSER or DELEGATED.
+  # Keep TemplateBrowserBehavior (BROWSER) and TemplateSiteBrowserProfile (DELEGATED) in sync.
+  delegation:
+    task-deadline-extra-ms: 120000   # added to navigation-timeout x max-retries for a task's deadline
+    connect-timeout-ms: 5000         # how long to wait for the TCP connection to a delegator
+    max-pages: 0                     # optional cap on this scraper's pages (0 = none)
+    stall-abort-seconds: 600         # no worker able to work for this long -> fail the run
+  debug-port: 9222
+  profile-dir: ./data/browser-profile
+  page-recycle-after: 100  # Restart Chrome after N navigations (+-20%)
+  navigation-timeout: 45000
+  page-timeout: 45000
+  max-retries: 3
+  retry-base-delay: 10000
+  min-page-delay: 3000     # TEMPLATE: tune per site (search pages)
+  max-page-delay: 7000
+  min-detail-delay: 4000   # TEMPLATE: tune per site (detail pages)
+  max-detail-delay: 9000
+  detected-logs-dir: ./detected-logs
+  detected-html-dir: ./detected-html
+  target-country: xx       # TEMPLATE: 2-letter country of the target site (proxy preference)
+  headless: false          # true runs Chrome without a window
+  window-position: ""      # e.g. "-2000,0" keeps the windows off screen
+  # Caps concurrent Chrome launches (memory); stagger spaces worker starts
+  max-concurrent-browser-inits: 3
+  worker-spawn-stagger-ms: 3000
+
+# ==================== Site-specific keys ====================
+# TEMPLATE: put any site-specific toggles here under a key named after the site
+# (e.g. "mysite:") and read them with @Value / @ConfigurationProperties
+# from your Phase classes. Avoid adding any unless really needed.
+
+# ==================== Server Configuration ====================
+server:
+  port: 8099   # TEMPLATE: unique per scraper on the same host
+
+# Optional CSV sink this process can serve. Uncomment, then under scraper set:
+#   sink.auto-push: true
+#   sink-consumers.central-db.base-url: http://127.0.0.1:8893
+#   sink-consumers.central-db.token: local-csv
+# file-name is the spreadsheet name only. Country and site stay under directory. The date is not added.
+# Start the jar from this module so ../../outputs is the repository outputs/ folder. See docs/dialect.md.
+#realestate:
+#  csv-sink:
+#    enabled: true
+#    port: 8893
+#    token: local-csv
+#    directory: ../../outputs
+#    file-name: listings.csv
+#    state-directory: ./data/csv-sink
